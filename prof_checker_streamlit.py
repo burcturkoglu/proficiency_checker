@@ -21,7 +21,7 @@ def prof_checker(sent):
     elem.submit()
     #nodes = driver.find_elements(By.XPATH, """//*[@id="piechart"]/div/div[1]/div/*[name()='svg']/*[name()='g'][1]/*[name()='g']/*[name()='g']/*[name()='text']""")
 
-    nodes = driver.find_element_by_xpath(By.XPATH, """//*[@id="piechart"]/div/div[1]/div/*[name()='svg']/*[name()='g'][1]""")
+    nodes = driver.find_elements(By.XPATH, """//*[@id="piechart"]/div/div[1]/div/*[name()='svg']/*[name()='g'][1]""")
     
     result = nodes[0].text
     

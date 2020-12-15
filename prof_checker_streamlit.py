@@ -4,10 +4,11 @@ from selenium.webdriver.common.by import By
 #from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.firefox.options import Options
 
+
 def prof_checker(sent):
     options = Options()
     #options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    options.binary_location = "/app/vendor/firefox/firefox"
+    options.binary_location = os.environ.get("FIREFOX_BIN")
     options.add_argument('--headless')
     #options.add_argument('--disable-gpu')
     #options.add_argument("--disable-dev-shm-usage")
@@ -56,6 +57,7 @@ def prof_checker(sent):
 def pos_tagger(sentence):
     options = Options()
     #options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    options.binary_location = os.environ.get("FIREFOX_BIN")
     options.add_argument('--headless')
     #options.add_argument('--disable-gpu')
     #options.add_argument("--disable-dev-shm-usage")

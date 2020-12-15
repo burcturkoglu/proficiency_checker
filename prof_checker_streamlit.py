@@ -96,6 +96,8 @@ s = st.text_input('Type a sentence in the box below')
 
 prof, tagged = find_prof(s)
 
+st.write(f'Your Input: {s}')
+
 st.write(f'Prof Level: {prof}')
 
 st.write(tagged)

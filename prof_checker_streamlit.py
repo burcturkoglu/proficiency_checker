@@ -5,9 +5,12 @@ from selenium.webdriver.chrome.options import Options
 
 def prof_checker(sent):
     options = Options()
+    options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     options.add_argument('--headless')
     options.add_argument('--disable-gpu')
-    driver = webdriver.Chrome(options=options)
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=options)
     
     driver.get("https://englishgrammar.pro/action.php")
     driver.minimize_window()
@@ -47,9 +50,12 @@ def prof_checker(sent):
 
 def pos_tagger(sentence):
     options = Options()
+    options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     options.add_argument('--headless')
     options.add_argument('--disable-gpu')
-    driver = webdriver.Chrome(options=options)
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=options)
     
     driver.get("http://ucrel-api.lancaster.ac.uk/claws/free.html")
 

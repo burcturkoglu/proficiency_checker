@@ -85,7 +85,7 @@ def find_prof(sentence):
     tagged = pos_tagger(sentence)
     result = prof_checker(tagged)
     
-    return(result)
+    return result, tagged
 
 
 import streamlit as st
@@ -94,7 +94,9 @@ st.title('Sentence Proficiency Level Checker')
 
 s = st.text_input('Type a sentence in the box below')
 
-prof = find_prof(s)
+prof, tagged = find_prof(s)
 
 st.write(f'Prof Level: {prof}')
+
+st.write(tagged)
 

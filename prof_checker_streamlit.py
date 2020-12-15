@@ -1,24 +1,18 @@
 import os, time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-#from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.firefox.options import Options
-
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-
+from selenium.webdriver.chrome.options import Options
 
 
 def prof_checker(sent):
     options = Options()
-    #options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
+    options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     options.add_argument('--headless')
-    #options.add_argument('--disable-gpu')
-    #options.add_argument("--disable-dev-shm-usage")
-    #options.add_argument("--no-sandbox")
-    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=options)
+    options.add_argument('--disable-gpu')
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=options)
     
-    driver = webdriver.Firefox(executable_path=os.environ.get("GECKODRIVER_PATH"), firefox_binary=binary, options=options)
 
     driver.get("https://englishgrammar.pro/action.php")
     
@@ -26,8 +20,6 @@ def prof_checker(sent):
     elem.clear()
     elem.send_keys(sent)
     elem.submit()
-
-    time.sleep(1)
 
     nodes = driver.find_elements(By.XPATH, """//*[@id="piechart"]/div/div[1]/div/*[name()='svg']/*[name()='g'][1]""")
     
@@ -59,15 +51,12 @@ def prof_checker(sent):
 
 def pos_tagger(sentence):
     options = Options()
-    #options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
-    binary = FirefoxBinary(os.environ.get("FIREFOX_BIN"))
+    options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     options.add_argument('--headless')
-    #options.add_argument('--disable-gpu')
-    #options.add_argument("--disable-dev-shm-usage")
-    #options.add_argument("--no-sandbox")
-    #driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=options)
-    
-    driver = webdriver.Firefox(executable_path=os.environ.get("GECKODRIVER_PATH"), firefox_binary=binary, options=options)
+    options.add_argument('--disable-gpu')
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--no-sandbox")
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), options=options)
 
     driver.get("http://ucrel-api.lancaster.ac.uk/claws/free.html")
 
@@ -82,8 +71,6 @@ def pos_tagger(sentence):
     elem.send_keys(sentence)
 
     elem.submit()
-
-    time.sleep(1)
 
     nodes = driver.find_element_by_xpath("/html/body/div[2]/pre")
     

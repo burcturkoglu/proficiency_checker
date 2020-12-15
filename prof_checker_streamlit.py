@@ -100,5 +100,5 @@ st.write(f'Your Input: {s}')
 
 st.write(f'Prof Level: {prof}')
 
-st.write(tagged)
+st.text(tagged)
 

@@ -7,6 +7,7 @@ from selenium.webdriver.firefox.options import Options
 def prof_checker(sent):
     options = Options()
     #options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+    options.binary_location = "/app/vendor/firefox/firefox"
     options.add_argument('--headless')
     #options.add_argument('--disable-gpu')
     #options.add_argument("--disable-dev-shm-usage")

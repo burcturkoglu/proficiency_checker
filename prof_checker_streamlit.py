@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+import plotly.graph_objects as go
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
@@ -52,7 +53,7 @@ def prof_checker(sent):
         #print('A1')
         return 'A1'
     else:
-        return 'Not find'
+        pass
 
 
 def pos_tagger(sentence):
@@ -96,10 +97,69 @@ def find_prof(sentence):
 
 st.title('Sentence Proficiency Level Checker')
 
-s = st.text_input('Type a sentence in the box below', value='Hello world!')
+s = st.text_area('Type a sentence or sentences in the box below')
 
-prof, tagged = find_prof(s)
+s_list = s.strip().split('\n')
 
-st.write(f'Prof Level: {prof}')
+profs = {'A1':0, 'A2':0, 'B1':0, 'B2':0, 'C1':0}
+
+#prof, tagged = find_prof(s)
+
+#st.write(f'Prof Level: {prof}')
+
+if st.button('Submit'):
+
+    if len(s_list) == 1:
+        prof, tagged = find_prof(s_list[0])
+        st.markdown("**Proficiency Level:** {0}".format(prof))
+    elif len(s_list) == 0:
+        st.markdown("*No entry found!*")
+    else:
+        with st.spinner('Processing...'):
+            my_bar = st.progress(0)
+            percent = 100/len(s_list)
+
+            for idx, i in enumerate(s_list):
+                if i.strip() == '':
+                    continue
+                else:
+                    prof, tagged = find_prof(i)
+
+                if prof == 'A1':
+                    profs['A1'] += 1
+                elif prof == 'A2':
+                    profs['A2'] += 1
+                elif prof == 'B1':
+                    profs['B1'] += 1
+                elif prof == 'B2':
+                    profs['B2'] += 1
+                elif prof == 'C1' or prof == 'C2':
+                    profs['C1'] += 1
+                else:
+                    st.markdown("**Not Found:** _{0}_".format(i))
+
+                my_bar.progress((percent/100) * (idx+1))
+        #st.write(f'Prof Level: {prof}')
+        #st.text(profs)
+
+        labels = []
+        values = []
+
+        for k,v in profs.items():
+            if v != 0:
+                labels.append(k)
+                values.append(v)
+
+
+        fig = go.Figure(data=[go.Pie(labels=labels, values=values, textinfo='label+percent',
+                                     insidetextorientation='radial',
+                                     hovertemplate =
+                                    '<b>Proficiency:</b>: %{label}'+
+                                    '<br><b>Count:</b> %{value}<br>'+
+                                    '<b>Percentage:</b> %{percent}'
+                                    )])
+
+        st.subheader('Proficiency Distribution')
+        st.plotly_chart(fig, use_container_width=True)
 
 #st.image(chart)

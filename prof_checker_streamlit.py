@@ -1,9 +1,9 @@
-import os
+import os, io
 import streamlit as st
 import plotly.graph_objects as go
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-
+from PIL import Image, ImageChops
 
 def prof_checker(sent):
     options = Options()
@@ -22,38 +22,44 @@ def prof_checker(sent):
     elem.send_keys(sent)
     elem.submit()
 
-    #driver.set_window_size(1400, 600)
+    driver.set_window_size(1400, 600)
 
     nodes = driver.find_element_by_xpath("""//*[@id="piechart"]/div/div[1]/div/*[name()='svg']/*[name()='g'][1]""")
     
-    #chart = driver.find_elements_by_xpath("/html/body/div")
-
     result = nodes.text
 
-    #chart_image = chart[0].screenshot_as_png
+    text = driver.find_elements_by_xpath("//*[@id=\"demo\"]")
+
+    try:
+        text_image = text[0].screenshot_as_png
+
+    except:
+        text_image = None
     
     driver.close()
     
     if 'C2' in result:
         #print('C2')
-        return 'C1'
+        proficiency = 'C2'
     elif 'C1' in result:
         #print('C1')
-        return 'C1'
+        proficiency = 'C1'
     elif 'B2' in result:
         #print('B2')
-        return 'B2'
+        proficiency = 'B2'
     elif 'B1' in result:
         #print('B1')
-        return 'B1'
+        proficiency = 'B1'
     elif 'A2' in result:
         #print('A2')
-        return 'A2'
+        proficiency = 'A2'
     elif 'A1' in result:
         #print('A1')
-        return 'A1'
+        proficiency = 'A1'
     else:
-        pass
+        proficiency = None
+
+    return proficiency, text_image
 
 
 def pos_tagger(sentence):
@@ -90,10 +96,16 @@ def pos_tagger(sentence):
 
 def find_prof(sentence):
     tagged = pos_tagger(sentence)
-    result = prof_checker(tagged)
+    prof, text = prof_checker(tagged)
 
-    return result, tagged
+    return prof, text
 
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+
+local_css("style.css")
 
 st.title('Sentence Proficiency Level Checker')
 
@@ -101,20 +113,24 @@ s = st.text_area('Type a sentence or sentences in the box below')
 
 s_list = s.strip().split('\n')
 
-profs = {'A1':0, 'A2':0, 'B1':0, 'B2':0, 'C1':0}
-
-#prof, tagged = find_prof(s)
-
-#st.write(f'Prof Level: {prof}')
+profs = {'A1':0, 'A2':0, 'B1':0, 'B2':0, 'C1':0, 'C2':0}
 
 if st.button('Submit'):
 
     if len(s_list) == 1:
-        prof, tagged = find_prof(s_list[0])
+        prof, text = find_prof(s_list[0])
         st.markdown("**Proficiency Level:** {0}".format(prof))
+        
+        st.image('./proficiency_legend.png', use_column_width=True)
+        st.image(text, use_column_width=True)
+
+
     elif len(s_list) == 0:
         st.markdown("*No entry found!*")
+
     else:
+        text_images = []
+
         with st.spinner('Processing...'):
             my_bar = st.progress(0)
             percent = 100/len(s_list)
@@ -123,24 +139,30 @@ if st.button('Submit'):
                 if i.strip() == '':
                     continue
                 else:
-                    prof, tagged = find_prof(i)
+                    prof, text = find_prof(i)
 
                 if prof == 'A1':
                     profs['A1'] += 1
+                    text_images.append(text)
                 elif prof == 'A2':
                     profs['A2'] += 1
+                    text_images.append(text)
                 elif prof == 'B1':
                     profs['B1'] += 1
+                    text_images.append(text)
                 elif prof == 'B2':
                     profs['B2'] += 1
-                elif prof == 'C1' or prof == 'C2':
+                    text_images.append(text)
+                elif prof == 'C1':
                     profs['C1'] += 1
+                    text_images.append(text)
+                elif prof == 'C2':
+                    profs['C2'] += 1
+                    text_images.append(text)
                 else:
                     st.markdown("**Not Found:** _{0}_".format(i))
 
-                my_bar.progress((percent/100) * (idx+1))
-        #st.write(f'Prof Level: {prof}')
-        #st.text(profs)
+                my_bar.progress(round((percent/100) * (idx+1), 2))
 
         labels = []
         values = []
@@ -150,16 +172,37 @@ if st.button('Submit'):
                 labels.append(k)
                 values.append(v)
 
+        with st.beta_expander("See the proficiency level of each sentence"):
+            st.image("./proficiency_legend.png", use_column_width=True)
+            for m in text_images:
+                st.markdown('<hr>', unsafe_allow_html=True)
+                st.image(m, use_column_width=True)
+                
+
+        st.text("\n")
+
+        st.markdown("**Proficiency Levels and Distribution**")
+        col1, col2 = st.beta_columns([1, 4])
+
+        for g, h in zip(labels, values):
+            col1.markdown("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**{0}**: {1}%".format(g, round(100*h/sum(profs.values()), 2)))
+
+
+        colors = {'A1':'#d9be99', 'A2':'#a7d9d9', 'B1':'#d48181', 'B2':'#78dc7e', 'C1':'#7378fa', 'C2':'#ff60fa'}
+
+        layout = go.Layout(
+                  margin=go.layout.Margin(
+                        t=0  #top margin
+                    )
+                )
 
         fig = go.Figure(data=[go.Pie(labels=labels, values=values, textinfo='label+percent',
                                      insidetextorientation='radial',
+                                     marker_colors=[colors[i] for i in labels],
                                      hovertemplate =
                                     '<b>Proficiency:</b>: %{label}'+
                                     '<br><b>Count:</b> %{value}<br>'+
                                     '<b>Percentage:</b> %{percent}'
-                                    )])
+                                    )], layout=layout)
 
-        st.subheader('Proficiency Distribution')
-        st.plotly_chart(fig, use_container_width=True)
-
-#st.image(chart)
+        col2.plotly_chart(fig, use_container_width=True)
